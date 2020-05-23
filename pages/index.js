@@ -3,6 +3,10 @@ import Head from "next/head";
 import fetch from "node-fetch";
 import { ResponsiveLine } from "@nivo/line";
 
+const markerTextStyle = { fontSize: "12px", opacity: 0.5, fill: "#e6ab02" };
+
+const markerLineStyle = { stroke: "#e6ab02", strokeWidth: 1, strokeDasharray: 5, strokeOpacity: 0.4 };
+
 const getDailyIncrease = (data) => {
   return data.map((day, i) => {
     if (i - 1 >= 0) {
@@ -49,7 +53,7 @@ const Home = (props) => {
         <div className="chart">
           <ResponsiveLine
             data={props.data}
-            colors={{ scheme: "category10" }}
+            colors={{ scheme: "dark2" }}
             margin={{
               top: 30,
               right: 50,
@@ -77,42 +81,54 @@ const Home = (props) => {
               tickSize: 10,
               tickPadding: 10,
             }}
-            // curve={"step"}
-            curve={"stepBefore"}
+            curve={"step"}
+            // curve={"stepBefore"}
             // curve={"monotoneX"}
             // enablePointLabel={true}
             // pointSize={3}
             enablePoints={false}
             enableArea={true}
+            theme={{
+              axis: {
+                ticks: {
+                  text: {
+                    fontSize: 14,
+                    fill: "#666666",
+                    fontFamily: "Lucida Console, Courier, monospace",
+                  },
+                },
+              },
+              grid: { line: { stroke: "#666666", strokeWidth: 0.5 } },
+            }}
             markers={[
               {
                 axis: "y",
                 value: 300,
-                lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
+                lineStyle: markerLineStyle,
                 // legend: "wakacje",
                 // legendOrientation: "vertical",
               },
               {
                 axis: "x",
                 value: new Date(props.data[0].data[58].x),
-                lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
-                textStyle: { fontSize: "12px", opacity: 0.5 },
+                lineStyle: markerLineStyle,
+                textStyle: markerTextStyle,
                 legend: "majowka",
                 legendOrientation: "vertical",
               },
               {
                 axis: "x",
                 value: new Date(props.data[0].data[61].x),
-                lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
-                textStyle: { fontSize: "12px", opacity: 0.5 },
+                lineStyle: markerLineStyle,
+                textStyle: markerTextStyle,
                 legend: "II etap",
                 legendOrientation: "vertical",
               },
               {
                 axis: "x",
                 value: new Date(props.data[0].data[75].x),
-                lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
-                textStyle: { fontSize: "12px", opacity: 0.5 },
+                lineStyle: markerLineStyle,
+                textStyle: markerTextStyle,
                 legend: "III etap",
                 legendOrientation: "vertical",
               },
@@ -124,14 +140,14 @@ const Home = (props) => {
       <style jsx>{`
         :global(body) {
           margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Avenir Next, Avenir, Helvetica, sans-serif;
+          font-family: Lucida Console, Courier, monospace;
+          background: #000;
         }
       `}</style>
 
       <style jsx>{`
         .hero {
           width: 100%;
-          color: #333;
         }
         .chart {
           margin: 50px auto 40px;
