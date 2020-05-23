@@ -1,88 +1,160 @@
-import React from 'react'
-import Head from 'next/head'
-import Nav from '../components/nav'
+import React from "react";
+import Head from "next/head";
+import fetch from "node-fetch";
+// import { ResponsiveBar } from "@nivo/bar";
+import { ResponsiveLine } from "@nivo/line";
 
-const Home = () => (
-  <div>
-    <Head>
-      <title>Home</title>
-      <link rel="icon" href="/favicon.ico" />
-    </Head>
+import Nav from "../components/nav";
 
-    <Nav />
+const formatDate = (d) => {
+  const mo = new Intl.DateTimeFormat("en", { month: "short" }).format(new Date(d));
+  const da = new Intl.DateTimeFormat("en", { day: "2-digit" }).format(new Date(d));
 
-    <div className="hero">
-      <h1 className="title">Welcome to Next.js!</h1>
-      <p className="description">
-        To get started, edit <code>pages/index.js</code> and save to reload.
-      </p>
+  return `${da}-${mo}`;
+};
 
-      <div className="row">
-        <a href="https://nextjs.org/docs" className="card">
-          <h3>Documentation &rarr;</h3>
-          <p>Learn more about Next.js in the documentation.</p>
-        </a>
-        <a href="https://nextjs.org/learn" className="card">
-          <h3>Next.js Learn &rarr;</h3>
-          <p>Learn about Next.js by following an interactive tutorial!</p>
-        </a>
-        <a
-          href="https://github.com/zeit/next.js/tree/master/examples"
-          className="card"
-        >
-          <h3>Examples &rarr;</h3>
-          <p>Find other example boilerplates on the Next.js GitHub.</p>
-        </a>
+const getDailyIncrease = (data) => {
+  return data.map((day, i) => {
+    if (i - 1 >= 0) {
+      return {
+        x: day.Date,
+        y: day.Cases - data[i - 1].Cases,
+      };
+    } else {
+      return {
+        x: day.Date,
+        y: day.Cases,
+      };
+    }
+  });
+};
+
+export async function getServerSideProps(context) {
+  const res = await fetch(`https://api.covid19api.com/total/dayone/country/poland/status/confirmed`);
+  const data = await res.json();
+
+  const increase = getDailyIncrease(data);
+
+  return {
+    props: {
+      data: [
+        {
+          id: "polandDailyIncrease",
+          data: increase,
+        },
+      ],
+    },
+  };
+}
+
+const Home = (props) => {
+  console.log(props.data);
+
+  return (
+    <div>
+      <Head>
+        <title>Home</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <div className="hero">
+        <div className="chart">
+          <ResponsiveLine
+            data={props.data}
+            colors={{ scheme: "category10" }}
+            margin={{
+              top: 30,
+              right: 50,
+              bottom: 60,
+              left: 30,
+            }}
+            yScale={{
+              type: "linear",
+            }}
+            // curve={"step"}
+            curve={"stepBefore"}
+            // curve={"monotoneX"}
+            // enablePointLabel={true}
+            // pointSize={3}
+            enablePoints={false}
+            axisBottom={{
+              tickSize: 0,
+              tickPadding: 10,
+              tickRotation: -60,
+              format: formatDate,
+            }}
+            axisLeft={null}
+            axisRight={{
+              enable: true,
+              tickSize: 10,
+              tickPadding: 10,
+              // tickRotation: -60,
+              // format: formatDate,
+            }}
+            enableArea={true}
+            markers={[
+              {
+                axis: "y",
+                value: 300,
+                lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
+                // legend: "wakacje",
+                // legendOrientation: "vertical",
+              },
+              {
+                axis: "x",
+                value: props.data[0].data[58].x,
+                lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
+                textStyle: { fontSize: "12px", opacity: 0.5 },
+                legend: "majowka",
+                legendOrientation: "vertical",
+              },
+              {
+                axis: "x",
+                value: props.data[0].data[61].x,
+                lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
+                textStyle: { fontSize: "12px", opacity: 0.5 },
+                legend: "II etap",
+                legendOrientation: "vertical",
+              },
+              {
+                axis: "x",
+                value: props.data[0].data[75].x,
+                lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
+                textStyle: { fontSize: "12px", opacity: 0.5 },
+                legend: "III etap",
+                legendOrientation: "vertical",
+              },
+            ]}
+          />
+        </div>
       </div>
+
+      <style jsx>{`
+        :global(body) {
+          margin: 0;
+          font-family: -apple-system, BlinkMacSystemFont, Avenir Next, Avenir, Helvetica, sans-serif;
+        }
+      `}</style>
+
+      <style jsx>{`
+        .hero {
+          width: 100%;
+          color: #333;
+        }
+        .chart {
+          margin: 50px auto 40px;
+          height: 400px;
+          width: 80vw;
+          max-width: 80vw;
+          box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .chart:hover {
+          box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+      `}</style>
     </div>
+  );
+};
 
-    <style jsx>{`
-      .hero {
-        width: 100%;
-        color: #333;
-      }
-      .title {
-        margin: 0;
-        width: 100%;
-        padding-top: 80px;
-        line-height: 1.15;
-        font-size: 48px;
-      }
-      .title,
-      .description {
-        text-align: center;
-      }
-      .row {
-        max-width: 880px;
-        margin: 80px auto 40px;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-      }
-      .card {
-        padding: 18px 18px 24px;
-        width: 220px;
-        text-align: left;
-        text-decoration: none;
-        color: #434343;
-        border: 1px solid #9b9b9b;
-      }
-      .card:hover {
-        border-color: #067df7;
-      }
-      .card h3 {
-        margin: 0;
-        color: #067df7;
-        font-size: 18px;
-      }
-      .card p {
-        margin: 0;
-        padding: 12px 0 0;
-        font-size: 13px;
-        color: #333;
-      }
-    `}</style>
-  </div>
-)
-
-export default Home
+export default Home;
