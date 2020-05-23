@@ -58,7 +58,7 @@ const Home = (props) => {
               top: 30,
               right: 50,
               bottom: 60,
-              left: 30,
+              left: 20,
             }}
             yScale={{
               type: "linear",
@@ -98,7 +98,7 @@ const Home = (props) => {
                   },
                 },
               },
-              grid: { line: { stroke: "#666666", strokeWidth: 0.5 } },
+              grid: { line: { stroke: "#282828", strokeWidth: 0.5 } },
             }}
             markers={[
               {
@@ -152,8 +152,8 @@ const Home = (props) => {
         .chart {
           margin: 50px auto 40px;
           height: 400px;
-          width: 80vw;
-          max-width: 80vw;
+          // width: 90vw;
+          max-width: 95vw;
           box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
 
