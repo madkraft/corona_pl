@@ -1,17 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import fetch from "node-fetch";
-// import { ResponsiveBar } from "@nivo/bar";
 import { ResponsiveLine } from "@nivo/line";
-
-import Nav from "../components/nav";
-
-const formatDate = (d) => {
-  const mo = new Intl.DateTimeFormat("en", { month: "short" }).format(new Date(d));
-  const da = new Intl.DateTimeFormat("en", { day: "2-digit" }).format(new Date(d));
-
-  return `${da}-${mo}`;
-};
 
 const getDailyIncrease = (data) => {
   return data.map((day, i) => {
@@ -29,7 +19,7 @@ const getDailyIncrease = (data) => {
   });
 };
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps() {
   const res = await fetch(`https://api.covid19api.com/total/dayone/country/poland/status/confirmed`);
   const data = await res.json();
 
@@ -48,8 +38,6 @@ export async function getServerSideProps(context) {
 }
 
 const Home = (props) => {
-  console.log(props.data);
-
   return (
     <div>
       <Head>
@@ -71,26 +59,30 @@ const Home = (props) => {
             yScale={{
               type: "linear",
             }}
-            // curve={"step"}
-            curve={"stepBefore"}
-            // curve={"monotoneX"}
-            // enablePointLabel={true}
-            // pointSize={3}
-            enablePoints={false}
+            xScale={{
+              type: "time",
+              format: "%Y-%m-%dT%H:%M:%SZ",
+              precision: "day",
+            }}
             axisBottom={{
+              format: "%b %d",
+              // tickValues: "every 3 days",
+              tickRotation: -60,
               tickSize: 0,
               tickPadding: 10,
-              tickRotation: -60,
-              format: formatDate,
             }}
             axisLeft={null}
             axisRight={{
               enable: true,
               tickSize: 10,
               tickPadding: 10,
-              // tickRotation: -60,
-              // format: formatDate,
             }}
+            // curve={"step"}
+            curve={"stepBefore"}
+            // curve={"monotoneX"}
+            // enablePointLabel={true}
+            // pointSize={3}
+            enablePoints={false}
             enableArea={true}
             markers={[
               {
@@ -102,7 +94,7 @@ const Home = (props) => {
               },
               {
                 axis: "x",
-                value: props.data[0].data[58].x,
+                value: new Date(props.data[0].data[58].x),
                 lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
                 textStyle: { fontSize: "12px", opacity: 0.5 },
                 legend: "majowka",
@@ -110,7 +102,7 @@ const Home = (props) => {
               },
               {
                 axis: "x",
-                value: props.data[0].data[61].x,
+                value: new Date(props.data[0].data[61].x),
                 lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
                 textStyle: { fontSize: "12px", opacity: 0.5 },
                 legend: "II etap",
@@ -118,7 +110,7 @@ const Home = (props) => {
               },
               {
                 axis: "x",
-                value: props.data[0].data[75].x,
+                value: new Date(props.data[0].data[75].x),
                 lineStyle: { stroke: "#b0413e", strokeWidth: 1, strokeDasharray: 5 },
                 textStyle: { fontSize: "12px", opacity: 0.5 },
                 legend: "III etap",
@@ -150,7 +142,7 @@ const Home = (props) => {
         }
 
         .chart:hover {
-          box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.3);
+          box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
         }
       `}</style>
     </div>
