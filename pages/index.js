@@ -1,11 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import fetch from "node-fetch";
-import { ResponsiveLine } from "@nivo/line";
-
-const markerTextStyle = { fontSize: "12px", opacity: 0.5, fill: "#e6ab02" };
-
-const markerLineStyle = { stroke: "#e6ab02", strokeWidth: 1, strokeDasharray: 5, strokeOpacity: 0.4 };
+import { LineChart } from "../components/LineChart";
 
 const getDailyIncrease = (data) => {
   return data.map((day, i) => {
@@ -23,18 +19,44 @@ const getDailyIncrease = (data) => {
   });
 };
 
+const getMovingAverage = (data) => {
+  let res = [];
+
+  data.forEach((day, i) => {
+    if (i - 3 >= 0) {
+      console.log("day  => ", day);
+      res = [
+        ...res,
+        {
+          x: day.x,
+          y: Math.round((day.y + data[i - 1].y + data[i - 2].y) / 3),
+        },
+      ];
+    }
+  });
+
+  return res;
+};
+
 export async function getServerSideProps() {
   const res = await fetch(`https://api.covid19api.com/total/dayone/country/poland/status/confirmed`);
   const data = await res.json();
 
   const increase = getDailyIncrease(data);
+  const movingAverage = getMovingAverage(increase);
 
   return {
     props: {
-      data: [
+      dailyNewCases: [
         {
           id: "polandDailyIncrease",
           data: increase,
+        },
+      ],
+      movingAverage: [
+        {
+          id: "polandThreeDayMovingAverage",
+          data: movingAverage,
         },
       ],
     },
@@ -42,6 +64,8 @@ export async function getServerSideProps() {
 }
 
 const Home = (props) => {
+  const lastDay = props.dailyNewCases[0].data[props.dailyNewCases[0].data.length - 1].y;
+
   return (
     <div>
       <Head>
@@ -50,90 +74,16 @@ const Home = (props) => {
       </Head>
 
       <div className="hero">
+        <h1 className="last-number">Last day: {lastDay}</h1>
+
+        <h3 className="chart-subtitle">Daily increase</h3>
         <div className="chart">
-          <ResponsiveLine
-            data={props.data}
-            colors={{ scheme: "dark2" }}
-            margin={{
-              top: 30,
-              right: 50,
-              bottom: 60,
-              left: 20,
-            }}
-            yScale={{
-              type: "linear",
-            }}
-            xScale={{
-              type: "time",
-              format: "%Y-%m-%dT%H:%M:%SZ",
-              precision: "day",
-            }}
-            axisBottom={{
-              format: "%b %d",
-              // tickValues: "every 3 days",
-              tickRotation: -60,
-              tickSize: 0,
-              tickPadding: 10,
-            }}
-            axisLeft={null}
-            axisRight={{
-              enable: true,
-              tickSize: 10,
-              tickPadding: 10,
-            }}
-            curve={"step"}
-            // curve={"stepBefore"}
-            // curve={"monotoneX"}
-            // enablePointLabel={true}
-            // pointSize={3}
-            enablePoints={false}
-            enableArea={true}
-            theme={{
-              axis: {
-                ticks: {
-                  text: {
-                    fontSize: 14,
-                    fill: "#666666",
-                    fontFamily: "Lucida Console, Courier, monospace",
-                  },
-                },
-              },
-              grid: { line: { stroke: "#282828", strokeWidth: 0.5 } },
-            }}
-            markers={[
-              {
-                axis: "y",
-                value: 300,
-                lineStyle: markerLineStyle,
-                // legend: "wakacje",
-                // legendOrientation: "vertical",
-              },
-              {
-                axis: "x",
-                value: new Date(props.data[0].data[58].x),
-                lineStyle: markerLineStyle,
-                textStyle: markerTextStyle,
-                legend: "majowka",
-                legendOrientation: "vertical",
-              },
-              {
-                axis: "x",
-                value: new Date(props.data[0].data[61].x),
-                lineStyle: markerLineStyle,
-                textStyle: markerTextStyle,
-                legend: "II etap",
-                legendOrientation: "vertical",
-              },
-              {
-                axis: "x",
-                value: new Date(props.data[0].data[75].x),
-                lineStyle: markerLineStyle,
-                textStyle: markerTextStyle,
-                legend: "III etap",
-                legendOrientation: "vertical",
-              },
-            ]}
-          />
+          <LineChart data={props.dailyNewCases} curve="step" />
+        </div>
+
+        <h3 className="chart-subtitle">Three day moving average</h3>
+        <div className="chart">
+          <LineChart data={props.movingAverage} curve="monotoneX" />
         </div>
       </div>
 
@@ -142,6 +92,7 @@ const Home = (props) => {
           margin: 0;
           font-family: Lucida Console, Courier, monospace;
           background: #000;
+          color: #1b9e77;
         }
       `}</style>
 
@@ -152,13 +103,21 @@ const Home = (props) => {
         .chart {
           margin: 50px auto 40px;
           height: 400px;
-          // width: 90vw;
           max-width: 95vw;
           box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
         }
 
         .chart:hover {
           box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .last-number {
+          text-align: center;
+        }
+
+        .chart-subtitle {
+          padding: 0 40px;
+          margin-top: 20px;
         }
       `}</style>
     </div>
