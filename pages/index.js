@@ -24,7 +24,6 @@ const getMovingAverage = (data) => {
 
   data.forEach((day, i) => {
     if (i - 3 >= 0) {
-      console.log("day  => ", day);
       res = [
         ...res,
         {

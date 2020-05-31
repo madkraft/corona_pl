@@ -89,6 +89,14 @@ export function LineChart(props) {
           legend: "III etap",
           legendOrientation: "vertical",
         },
+        {
+          axis: "x",
+          value: new Date("2020-05-30T00:00:00Z"),
+          lineStyle: markerLineStyle,
+          textStyle: markerTextStyle,
+          legend: "Bez maseczek",
+          legendOrientation: "vertical",
+        },
       ]}
     />
   );
