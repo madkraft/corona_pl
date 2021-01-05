@@ -1,0 +1,22 @@
+.hero {
+  width: 100%;
+}
+.chart {
+  margin: 50px auto 40px;
+  height: 400px;
+  max-width: 95vw;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.chart:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.last-number {
+  text-align: center;
+}
+
+.chart-subtitle {
+  padding: 0 40px;
+  margin-top: 20px;
+}
