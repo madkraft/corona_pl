@@ -1,1 +1,1 @@
-Coronavirus stats for Poland
+Coronavirus stats for Poland and daily increase
