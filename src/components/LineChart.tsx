@@ -29,6 +29,7 @@ export const LineChart: FC<{
       }}
       yScale={{
         type: "linear",
+        // max: 10000
       }}
       xScale={{
         type: "time",
@@ -44,8 +45,8 @@ export const LineChart: FC<{
       }}
       axisLeft={null}
       axisRight={{
-        tickSize: 10,
-        tickPadding: 10,
+        tickSize: 4,
+        // tickPadding: 1,
       }}
       // curve={"stepBefore"}
       // curve={"monotoneX"}

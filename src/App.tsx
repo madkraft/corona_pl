@@ -18,18 +18,11 @@ interface APIDataPoint {
 
 const getDailyIncrease = (data: APIDataPoint[]): ChartDataPoint[] => {
   return data.map((day, i) => {
-    if (i - 1 >= 0) {
-      return {
-        x: day.Date,
-        y: day.Cases - data[i - 1].Cases,
-      };
-    } else {
-      return {
-        x: day.Date,
-        y: day.Cases,
-      };
-    }
-  });
+    return {
+      x: day.Date,
+      y: i - 1 >= 0 ? day.Cases - data[i - 1].Cases : 0,
+    };
+  }).slice(1)
 };
 
 const getMovingAverage = (data: ChartDataPoint[]): ChartDataPoint[] => {
@@ -50,11 +43,11 @@ const getMovingAverage = (data: ChartDataPoint[]): ChartDataPoint[] => {
   return res;
 };
 
-const getData = async (): Promise<APIDataPoint[]> => {
+const getData = async (last?: number): Promise<APIDataPoint[]> => {
   const { data } = await axios.get(
     `https://api.covid19api.com/total/dayone/country/poland/status/confirmed`
   );
-  return data;
+  return data.slice(last);
 };
 
 function App() {
@@ -63,35 +56,12 @@ function App() {
 
   useEffect(() => {
     const getCoronaData = async () => {
-      const data = await getData();
-      // const data = [
-      //   {
-      //     Cases: 1294878,
-      //     City: "",
-      //     CityCode: "",
-      //     Country: "Poland",
-      //     CountryCode: "",
-      //     Date: "2020-12-31T00:00:00Z",
-      //     Lat: "0",
-      //     Lon: "0",
-      //     Province: "",
-      //     Status: "confirmed",
-      //   },
-      //   {
-      //     Cases: 1305774,
-      //     City: "",
-      //     CityCode: "",
-      //     Country: "Poland",
-      //     CountryCode: "",
-      //     Date: "2021-01-01T00:00:00Z",
-      //     Lat: "0",
-      //     Lon: "0",
-      //     Province: "",
-      //     Status: "confirmed",
-      //   },
-      // ];
+      const lastDays = -60;
+      const data = await getData(lastDays);
       const newCases = getDailyIncrease(data);
       const average = getMovingAverage(newCases);
+
+      console.log('newCases', newCases)
 
       setDailyNewCases(newCases);
       setMovingAverage(average);
@@ -101,6 +71,7 @@ function App() {
   }, []);
 
   const lastDay = dailyNewCases[dailyNewCases.length - 1];
+
 
   return (
     <div className="hero">
